@@ -21,11 +21,21 @@
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
             config.permittedInsecurePackages = [ "python-2.7.18.8" ];
-            config.allowUnfreePredicate = pkg: lib.getName pkg == "connectiq-sdk";
+            config.allowUnfreePredicate = pkg: lib.hasPrefix "connectiq-sdk" (lib.getName pkg);
           };
 
-          packages.default = pkgs.callPackage ./connectiq-sdk.nix { };
-          devShells.default = pkgs.mkShell { packages = [ self'.packages.default ]; };
+          packages = {
+            connectiq-sdk = pkgs.callPackage ./connectiq-sdk.nix { };
+            connectiq-sdk-manager = pkgs.callPackage ./connectiq-sdk-manager.nix { };
+            default = self'.packages.connectiq-sdk;
+          };
+
+          devShells.default = pkgs.mkShell {
+            packages = with self'.packages; [
+              connectiq-sdk
+              connectiq-sdk-manager
+            ];
+          };
         };
     };
 }
