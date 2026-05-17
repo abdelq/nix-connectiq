@@ -89,8 +89,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       com.garmin.monkeybrains.jungle.DefaultJungleGenerator \
       -d "$TMPDIR"/com/garmin/monkeybrains/devices/devices.xml \
       -o "$out"/bin
-    sed -i "s|^devicesPath = .*|devicesPath = \"$out/resources/device-reference\"|" \
-      "$out"/bin/default.jungle
+    sed -i '/^devicesPath = /d' "$out"/bin/default.jungle
   '';
 
   dontWrapGApps = true;
@@ -119,5 +118,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       binaryNativeCode
     ];
     platforms = [ "x86_64-linux" ];
+    mainProgram = "monkeyc";
   };
 })
