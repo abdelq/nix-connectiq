@@ -45,7 +45,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   buildInputs = [
     bashNonInteractive
     libjpeg8
-    xorg.libSM
     xorg.libXxf86vm
     webkitgtk_4_0
   ];
