@@ -55,11 +55,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p "$out"
-    cp -r bin resources share "$out"
+    cp -r bin share "$out"
 
     mkdir -p "$doc/share/doc/${finalAttrs.pname}"
     cp -r *.html doc "$doc/share/doc/${finalAttrs.pname}"
     cp -r samples "$doc/share/doc/${finalAttrs.pname}/examples"
+    cp -rn resources/. "$doc/share/doc/${finalAttrs.pname}/doc/resources"
 
     runHook postInstall
   '';
