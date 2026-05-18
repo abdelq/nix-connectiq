@@ -79,18 +79,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     rm -f "$out"/share/monkeymotion/monkeybrains.jar
     rmdir --ignore-fail-on-non-empty "$out"/share/monkeymotion
-
-    (
-      cd "$TMPDIR"
-      '${lib.getExe' jre "jar"}' xf \
-        "$out"/bin/monkeybrains.jar \
-        com/garmin/monkeybrains/devices/devices.xml
-    )
-    '${lib.getExe jre}' -classpath "$out"/bin/monkeybrains.jar \
-      com.garmin.monkeybrains.jungle.DefaultJungleGenerator \
-      -d "$TMPDIR"/com/garmin/monkeybrains/devices/devices.xml \
-      -o "$out"/bin
-    sed -i '/^devicesPath = /d' "$out"/bin/default.jungle
   '';
 
   dontWrapGApps = true;
