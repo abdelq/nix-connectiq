@@ -74,22 +74,33 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       [ -f "$file" ] && isScript "$file" || continue
       substituteInPlace "$file" \
         --replace-warn 'java ' '${lib.getExe jre} ' \
-        --replace-fail '$( cd "$( dirname "$0" )" && pwd )' "$out"/bin
+        --replace-fail '$( cd "$( dirname "$0" )" && pwd )' "\''${MB_HOME:-$out/bin}"
     done
 
     rm -f "$out"/share/monkeymotion/monkeybrains.jar
     rmdir --ignore-fail-on-non-empty "$out"/share/monkeymotion
+
+    install -D ${./setup-writable-sdk-bin.sh} "$out"/libexec/setup-writable-sdk-bin
+    substituteInPlace "$out"/libexec/setup-writable-sdk-bin \
+      --subst-var-by storeRoot "$out"
   '';
 
   dontWrapGApps = true;
   preFixup = ''
     wrapGApp "$out"/bin/monkeymotion
     wrapGApp "$out"/bin/simulator
-    wrapProgramShell "$out"/bin/era "''${gappsWrapperArgs[@]}"
 
-    for bin in connectiq monkeydo; do
-      wrapProgramShell "$out"/bin/"$bin" \
-        --prefix PATH : '${lib.makeBinPath [ coreutils ]}'
+    wrapProgramShell "$out"/bin/era \
+      "''${gappsWrapperArgs[@]}" \
+      --prefix PATH : '${lib.makeBinPath [ coreutils ]}' \
+      --run ". $out/libexec/setup-writable-sdk-bin"
+
+    for file in "$out"/bin/*; do
+      [ -f "$file" ] && isScript "$file" || continue
+      [ "''${file##*/}" = era ] && continue
+      wrapProgramShell "$file" \
+        --prefix PATH : '${lib.makeBinPath [ coreutils ]}' \
+        --run ". $out/libexec/setup-writable-sdk-bin"
     done
 
     mv "$out"/bin/generateOptimizedYUV.py "$out"/bin/.generateOptimizedYUV.py-wrapped
