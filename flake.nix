@@ -20,8 +20,10 @@
         {
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
-            config.permittedInsecurePackages = [ "python-2.7.18.8" ];
-            config.allowUnfreePredicate = pkg: lib.hasPrefix "connectiq-sdk" (lib.getName pkg);
+            config = {
+              permittedInsecurePackages = [ "python-2.7.18.8" ];
+              allowUnfreePredicate = pkg: lib.hasPrefix "connectiq-sdk" (lib.getName pkg);
+            };
           };
 
           packages = {

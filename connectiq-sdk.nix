@@ -19,6 +19,7 @@
 }:
 
 let
+  # https://developer.garmin.com/downloads/connect-iq/sdks/sdks.json
   buildId = "2026-03-09-6a872a80b";
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
@@ -103,9 +104,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
         --run ". $out/libexec/setup-writable-sdk-bin"
     done
 
-    mv "$out"/bin/generateOptimizedYUV.py "$out"/bin/.generateOptimizedYUV.py-wrapped
+    mv "$out"/bin/generateOptimizedYUV.py "$out"/libexec/generateOptimizedYUV.py
     makeShellWrapper '${lib.getExe' python2 "python2"}' "$out"/bin/generateOptimizedYUV.py \
-      --add-flag "$out"/bin/.generateOptimizedYUV.py-wrapped \
+      --add-flag "$out"/libexec/generateOptimizedYUV.py \
       --prefix PATH : '${lib.makeBinPath [ ffmpeg ]}'
   '';
 

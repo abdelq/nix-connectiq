@@ -37,7 +37,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p "$out"
-    cp -r * "$out"
+    cp -r bin share "$out"
 
     runHook postInstall
   '';
