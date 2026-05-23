@@ -2,14 +2,9 @@ store_root='@storeRoot@'
 store_bin="$store_root/bin"
 store_name="${store_root##*/}"
 
-for dir in "${XDG_RUNTIME_DIR:-}" "${TMPDIR:-/tmp}"; do
-  [ -n "$dir" ] || continue
-  cache_root="$dir/$store_name-$UID"
-  cache_bin="$cache_root/bin"
-  if mkdir -p "$cache_bin" 2>/dev/null; then
-    break
-  fi
-done
+cache_root="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/$store_name-$UID"
+cache_bin="$cache_root/bin"
+mkdir -p "$cache_bin"
 
 for path in "$store_bin"/*; do
   [ -e "$path" ] || continue
