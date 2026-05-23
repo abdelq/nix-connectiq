@@ -29,6 +29,15 @@
           packages = {
             connectiq-sdk = pkgs.callPackage ./connectiq-sdk.nix { };
             connectiq-sdk-manager = pkgs.callPackage ./connectiq-sdk-manager.nix { };
+            gen-dev-key = pkgs.writeShellApplication {
+              name = "gen-dev-key";
+              runtimeInputs = [ pkgs.openssl ];
+              text = ''
+                name="''${1:-developer_key}"
+                openssl genrsa -out "$name.pem" 4096
+                openssl pkcs8 -topk8 -nocrypt -inform PEM -outform DER -in "$name.pem" -out "$name.der"
+              '';
+            };
             default = self'.packages.connectiq-sdk;
           };
 
