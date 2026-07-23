@@ -18,6 +18,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   src = fetchzip {
     url = "https://developer.garmin.com/downloads/connect-iq/sdk-manager/connectiq-sdk-manager-linux.zip";
     hash = "sha256-YVDYRRlBAyogZEs7Rhw1IUZfvhFYnkCIOPVYG8it8Xk=";
+    stripRoot = false;
   };
 
   strictDeps = true;

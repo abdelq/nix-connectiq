@@ -34,6 +34,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   src = fetchzip {
     url = "https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-${finalAttrs.version}-${buildId}.zip";
     hash = "sha256-YIQJ8TFlOwYotsY8JD/UrJjG3z9dZhn0eD80V4K+/XE=";
+    stripRoot = false;
   };
 
   strictDeps = true;
