@@ -7,7 +7,10 @@
   outputs =
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
 
       perSystem =
         {
@@ -28,7 +31,6 @@
 
           packages = {
             connectiq-sdk = pkgs.callPackage ./connectiq-sdk.nix { };
-            connectiq-sdk-manager = pkgs.callPackage ./connectiq-sdk-manager.nix { };
             gen-dev-key = pkgs.writeShellApplication {
               name = "gen-dev-key";
               runtimeInputs = [ pkgs.openssl ];
@@ -39,12 +41,17 @@
               '';
             };
             default = self'.packages.connectiq-sdk;
+          }
+          // lib.optionalAttrs pkgs.stdenv.hostPlatform.isx86_64 {
+            connectiq-sdk-manager = pkgs.callPackage ./connectiq-sdk-manager.nix { };
           };
 
           devShells.default = pkgs.mkShell {
-            packages = with self'.packages; [
-              connectiq-sdk
-              connectiq-sdk-manager
+            packages = [
+              self'.packages.connectiq-sdk
+            ]
+            ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
+              self'.packages.connectiq-sdk-manager
             ];
           };
         };

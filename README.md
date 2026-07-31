@@ -1,5 +1,12 @@
 # Garmin Connect IQ SDK
 
+## Platform support
+
+The SDK is available on both `x86_64-linux` and `aarch64-linux`.
+Garmin ships some programs as x86-64 executables like `simulator`,
+so the ARM package omits those. The rest of the core tools in Java
+such as `monkeyc` remain available.
+
 ## SDK Manager
 
 To download the device library, you will need to use the SDK manager:
@@ -8,7 +15,9 @@ To download the device library, you will need to use the SDK manager:
 nix run .#connectiq-sdk-manager
 ```
 
-When using Nvidia on Wayland, you may need to set `__NV_DISABLE_EXPLICIT_SYNC=1`.
+> [!NOTE]
+> The SDK manager is only available on `x86_64-linux`. \
+> When using Nvidia on Wayland, you may need to set `__NV_DISABLE_EXPLICIT_SYNC=1`.
 
 ## Developer Key
 

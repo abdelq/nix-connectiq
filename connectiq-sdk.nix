@@ -21,6 +21,7 @@
 let
   # https://developer.garmin.com/downloads/connect-iq/sdks/sdks.json
   buildId = "2026-03-09-6a872a80b";
+  withNativeTools = stdenvNoCC.hostPlatform.isx86_64;
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "connectiq-sdk";
@@ -39,12 +40,14 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   strictDeps = true;
   nativeBuildInputs = [
-    autoPatchelfHook
     makeWrapper
-    wrapGAppsHook3
     dos2unix
+  ]
+  ++ lib.optionals withNativeTools [
+    autoPatchelfHook
+    wrapGAppsHook3
   ];
-  buildInputs = [
+  buildInputs = lib.optionals withNativeTools [
     bashNonInteractive
     libjpeg8
     xorg.libXxf86vm
@@ -71,7 +74,16 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     rm -f "$out"/bin/*.bat
     chmod +x "$out"/bin/monkeym
     dos2unix -e "$out"/bin/monkeygraph
-
+  ''
+  + lib.optionalString (!withNativeTools) ''
+    # Garmin only ships these tools as x86-64 ELF executables
+    rm -f \
+      "$out"/bin/connectiq \
+      "$out"/bin/monkeymotion \
+      "$out"/bin/shell \
+      "$out"/bin/simulator
+  ''
+  + ''
     for file in "$out"/bin/*; do
       [ -f "$file" ] && isScript "$file" || continue
       substituteInPlace "$file" \
@@ -88,38 +100,49 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   dontWrapGApps = true;
-  preFixup = ''
-    wrapGApp "$out"/bin/monkeymotion
-    wrapGApp "$out"/bin/simulator
+  preFixup =
+    lib.optionalString withNativeTools ''
+      wrapGApp "$out"/bin/monkeymotion
+      wrapGApp "$out"/bin/simulator
+    ''
+    + ''
+      for file in "$out"/bin/*; do
+        [ -f "$file" ] && isScript "$file" || continue
 
-    wrapProgramShell "$out"/bin/era \
-      "''${gappsWrapperArgs[@]}" \
-      --prefix PATH : '${lib.makeBinPath [ coreutils ]}' \
-      --run ". $out/libexec/setup-writable-sdk-bin"
+        wrapperArgs=()
+        ${lib.optionalString withNativeTools ''
+          if [ "''${file##*/}" = era ]; then
+            wrapperArgs+=("''${gappsWrapperArgs[@]}")
+          fi
+        ''}
+        wrapProgramShell "$file" \
+          "''${wrapperArgs[@]}" \
+          --prefix PATH : '${lib.makeBinPath [ coreutils ]}' \
+          --run ". $out/libexec/setup-writable-sdk-bin"
+      done
 
-    for file in "$out"/bin/*; do
-      [ -f "$file" ] && isScript "$file" || continue
-      [ "''${file##*/}" = era ] && continue
-      wrapProgramShell "$file" \
-        --prefix PATH : '${lib.makeBinPath [ coreutils ]}' \
-        --run ". $out/libexec/setup-writable-sdk-bin"
-    done
-
-    mv "$out"/bin/generateOptimizedYUV.py "$out"/libexec/generateOptimizedYUV.py
-    makeShellWrapper '${lib.getExe' python2 "python2"}' "$out"/bin/generateOptimizedYUV.py \
-      --add-flag "$out"/libexec/generateOptimizedYUV.py \
-      --prefix PATH : '${lib.makeBinPath [ ffmpeg ]}'
-  '';
+      mv "$out"/bin/generateOptimizedYUV.py "$out"/libexec/generateOptimizedYUV.py
+      makeShellWrapper '${lib.getExe' python2 "python2"}' "$out"/bin/generateOptimizedYUV.py \
+        --add-flag "$out"/libexec/generateOptimizedYUV.py \
+        --prefix PATH : '${lib.makeBinPath [ ffmpeg ]}'
+    '';
 
   meta = {
     description = "Garmin Connect IQ SDK";
     homepage = "https://developer.garmin.com/connect-iq";
     license = lib.licenses.unfree;
-    sourceProvenance = with lib.sourceTypes; [
-      binaryBytecode
-      binaryNativeCode
+    sourceProvenance =
+      with lib.sourceTypes;
+      [
+        binaryBytecode
+      ]
+      ++ lib.optionals withNativeTools [
+        binaryNativeCode
+      ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
     ];
-    platforms = [ "x86_64-linux" ];
     mainProgram = "monkeyc";
   };
 })
