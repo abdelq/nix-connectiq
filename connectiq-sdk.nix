@@ -20,12 +20,12 @@
 
 let
   # https://developer.garmin.com/downloads/connect-iq/sdks/sdks.json
-  buildId = "2026-03-09-6a872a80b";
+  buildId = "2026-06-09-92a1605b2";
   withNativeTools = stdenvNoCC.hostPlatform.isx86_64;
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "connectiq-sdk";
-  version = "9.1.0";
+  version = "9.2.0";
 
   outputs = [
     "out"
@@ -34,7 +34,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   src = fetchzip {
     url = "https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-${finalAttrs.version}-${buildId}.zip";
-    hash = "sha256-YIQJ8TFlOwYotsY8JD/UrJjG3z9dZhn0eD80V4K+/XE=";
+    hash = "sha256-SIiEE71WhEcg67JmT4iuKYfe/gbBVi35I1XPd/3xKlo=";
     stripRoot = false;
   };
 
