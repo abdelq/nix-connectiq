@@ -47,8 +47,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     autoPatchelfHook
     wrapGAppsHook3
   ];
-  buildInputs = lib.optionals withNativeTools [
+  buildInputs = [
     bashNonInteractive
+  ] ++ lib.optionals withNativeTools [
     libjpeg8
     xorg.libXxf86vm
     webkitgtk_4_0
